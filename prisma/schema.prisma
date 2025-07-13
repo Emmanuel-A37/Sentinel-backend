@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(uuid()) @db.Uuid
+  email String @unique
+  password String
+  projects Project[]
+  createdAt DateTime @default(now())
+}
+
+model Project {
+  id  String @id @default(uuid()) @db.Uuid
+  name String
+  environment String @default("production")
+  apiKey String @unique
+  user User @relation(fields: [userId], references: [id])
+  userId String @db.Uuid
+  apis Api[] 
+  createdAt DateTime @default(now())
+}
+
+model Api {
+  id String @id @default(uuid()) @db.Uuid
+  method String
+  path String
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String @db.Uuid
+  requests Request[]  
+  createdAt DateTime @default(now())
+}
+
+model Request {
+  id String @id @default(uuid()) @db.Uuid
+  api Api @relation(fields: [apiId], references: [id], onDelete: Cascade)
+  apiId String @db.Uuid
+  statusCode Int
+  responseTime Float
+  createdAt DateTime @default(now())
+}
+
+// npx prisma migrate dev --name init to sync prisma schema with db use docker exec backend npx prisma migrate dev --name init when backend image/container present
