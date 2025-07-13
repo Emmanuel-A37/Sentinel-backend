@@ -16,21 +16,33 @@ const app = express();
 const server = createServer(app);
 
 // Setup Socket.IO
+
+
+
+
+// default middleware
+app.use(express.json());
+
+
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://sentinelprime.vercel.app'
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
+
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000', 
+    origin: allowedOrigins,
     credentials: true
   }
 });
 
 app.set('io', io);
 
-// default middleware
-app.use(express.json());
-app.use(cors({
-  origin: 'http://localhost:3000', 
-  credentials: true               
-}));
 app.use(express.urlencoded({extended : false}));
 app.use(cookieParser());
 
